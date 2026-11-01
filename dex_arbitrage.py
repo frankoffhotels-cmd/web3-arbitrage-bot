@@ -16,7 +16,9 @@ ARBITRUM_SEPOLIA_RPC_URL = "https://sepolia-rollup.arbitrum.io/rpc"
 FLASH_LOAN_CONTRACT_ADDRESS = "0xD0f8EE59Cf94ea5167623df288E61BC009bE99F3"
 ARBITRUM_SEPOLIA_CHAIN_ID = 421614
 ARBITRUM_SEPOLIA_WETH_ADDRESS = "0x1dF462e2712496373A347f8ad10802a5E95f053D"
+ARBITRUM_SEPOLIA_USDC_ADDRESS = "0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d"
 TEST_FLASH_LOAN_AMOUNT = 1_000_000_000_000_000
+TEST_MIN_AMOUNT_OUT = 1
 UNISWAP_V2_ROUTER = "0x4752ba5DBc23f44D87826276BF6Fd6b1C372aD24"
 SUSHISWAP_ROUTER = "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506"
 WETH_ADDRESS = "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1"
@@ -260,10 +262,17 @@ async def execute_flash_loan_arbitrage(symbol: str, buy_dex: str, sell_dex: str)
         priority_fee = await web3.eth.max_priority_fee
         max_fee_per_gas = max(base_fee * 3 // 2, base_fee + priority_fee)
         nonce = await web3.eth.get_transaction_count(account.address)
+        params = web3.codec.encode(
+            ["address", "uint256"],
+            [
+                Web3.to_checksum_address(ARBITRUM_SEPOLIA_USDC_ADDRESS),
+                TEST_MIN_AMOUNT_OUT,
+            ],
+        )
         transaction = await contract.functions.executeArbitrage(
             Web3.to_checksum_address(ARBITRUM_SEPOLIA_WETH_ADDRESS),
             TEST_FLASH_LOAN_AMOUNT,
-            b"",
+            params,
         ).build_transaction(
             {
                 "from": account.address,
