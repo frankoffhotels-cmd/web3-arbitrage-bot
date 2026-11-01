@@ -1,2 +1,5 @@
-py-solc-x>=2.0,<3
+ccxt
+python-dotenv
+aiogram
 web3>=7.0,<8
+py-solc-x>=2.0,<3
